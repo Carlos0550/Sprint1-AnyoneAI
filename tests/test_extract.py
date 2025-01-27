@@ -1,3 +1,12 @@
+import os
+import sys
+import pandas as pd
+
+root_directory = os.path.dirname(os.path.abspath(__file__))  
+root_directory = os.path.dirname(root_directory)  
+
+sys.path.insert(0, root_directory)
+
 from src.config import DATASET_ROOT_PATH, PUBLIC_HOLIDAYS_URL, get_csv_to_table_mapping
 from src.extract import extract, get_public_holidays
 
@@ -27,3 +36,5 @@ def test_extract():
     assert dataframes["olist_products"].shape == (32951, 9)
     assert dataframes["olist_sellers"].shape == (3095, 4)
     assert dataframes["product_category_name_translation"].shape == (71, 2)
+
+print("El script se ejecutó correctamente")
