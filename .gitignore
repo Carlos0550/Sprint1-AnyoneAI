@@ -1,2 +1,7 @@
 dataset/*
 testvenv/*
+/*.db
+/*-shm
+/*-wal
+
+__pycache__
