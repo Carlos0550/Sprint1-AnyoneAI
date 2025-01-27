@@ -2,51 +2,58 @@ from typing import Dict
 
 import requests
 from pandas import DataFrame, read_csv, read_json, to_datetime
-
+from pathlib import Path 
+from io import StringIO 
+import os
 
 def get_public_holidays(public_holidays_url: str, year: str) -> DataFrame:
-    """Get the public holidays for the given year for Brazil.
-
-    Args:
-        public_holidays_url (str): url to the public holidays.
-        year (str): The year to get the public holidays for.
-
-    Raises:
-        SystemExit: If the request fails.
-
-    Returns:
-        DataFrame: A dataframe with the public holidays.
-    """
-    # TODO: Implement this function.
-    # You must use the requests library to get the public holidays for the given year.
-    # The url is public_holidays_url/{year}/BR.
-    # You must delete the columns "types" and "counties" from the dataframe.
-    # You must convert the "date" column to datetime.
-    # You must raise a SystemExit if the request fails. Research the raise_for_status
-    # method from the requests library.
-    raise NotImplementedError
-
+    url = f"{public_holidays_url}/{year}/BR"
+    
+    response = requests.get(url)
+    
+    response.raise_for_status() 
+    
+    df = read_json(StringIO(response.text))
+    df = df.drop(columns=["types", "counties"]) 
+    df["date"] = to_datetime(df["date"]) 
+    
+    return df
 
 def extract(
-    csv_folder: str, csv_table_mapping: Dict[str, str], public_holidays_url: str
+    csv_folder: str = None,
+    csv_table_mapping: Dict[str, str] = None,
+    public_holidays_url: str = "https://date.nager.at/api/v3/PublicHolidays",
+    year: str = "2017"
 ) -> Dict[str, DataFrame]:
-    """Extract the data from the csv files and load them into the dataframes.
-    Args:
-        csv_folder (str): The path to the csv's folder.
-        csv_table_mapping (Dict[str, str]): The mapping of the csv file names to the
-        table names.
-        public_holidays_url (str): The url to the public holidays.
-    Returns:
-        Dict[str, DataFrame]: A dictionary with keys as the table names and values as
-        the dataframes.
-    """
+
+    
+    #calcular automcaticamernte la ruta si no se proporciona la carpeta
+    if csv_folder is None:
+        script_dir = Path(__file__).parent.absolute()  #Ruta del script (src/)
+        project_root = script_dir.parent   # Raíz del proyecto (../)             
+        csv_folder = project_root / "dataset"  # Ruta absoluta a dataset/        
+    
+    if not os.path.exists(csv_folder):
+        raise FileNotFoundError(f"Carpeta no encontrada: {csv_folder}") #Lanzar un eror si la carpeta no existe
+    
+    if csv_table_mapping is None:
+        csv_files = [f for f in os.listdir(csv_folder) if f.endswith(".csv")] #Verifica que hayan csv validos
+        if not csv_files:
+            raise ValueError(f"No hay archivos CSV en {csv_folder}")
+        
+        csv_table_mapping = {
+            csv_file: csv_file.replace("olist_", "").replace("_dataset.csv", "")
+            for csv_file in csv_files
+        }
+        
     dataframes = {
         table_name: read_csv(f"{csv_folder}/{csv_file}")
         for csv_file, table_name in csv_table_mapping.items()
     }
-
-    holidays = get_public_holidays(public_holidays_url, "2017")
-
+    
+    holidays = get_public_holidays(public_holidays_url, year)
     dataframes["public_holidays"] = holidays
-
+    
     return dataframes
+
+data = extract()
