@@ -41,10 +41,19 @@ def extract(
         if not csv_files:
             raise ValueError(f"No hay archivos CSV en {csv_folder}")
         
+        special_file_mapping = {
+            "product_category_name_translation.csv": "product_category_name_translation",
+        }
+
         csv_table_mapping = {
-            csv_file: csv_file.replace("olist_", "").replace("_dataset.csv", "")
+            csv_file: (
+                special_file_mapping[csv_file]  
+                if csv_file in special_file_mapping
+                else csv_file.replace("olist_", "").replace("_dataset.csv", "") 
+            )
             for csv_file in csv_files
         }
+
         
     dataframes = {
         table_name: read_csv(f"{csv_folder}/{csv_file}")
