@@ -1,3 +1,10 @@
+import os
+import sys
+
+root_directory = os.path.dirname(os.path.abspath(__file__))  
+root_directory = os.path.dirname(root_directory)  
+
+sys.path.insert(0, root_directory)
 import pandas as pd
 from pytest import fixture
 from src.config import QUERY_RESULTS_ROOT_PATH, DATASET_ROOT_PATH, PUBLIC_HOLIDAYS_URL
