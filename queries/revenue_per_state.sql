@@ -3,3 +3,21 @@
 -- with most revenue and the second one the total revenue of each.
 -- HINT: All orders should have a delivered status and the actual delivery date 
 -- should be not null. 
+
+SELECT 
+    c.customer_state AS customer_state,
+    ROUND(SUM(p.payment_value), 2) AS Revenue
+FROM 
+    orders o
+JOIN 
+    order_payments p ON o.order_id = p.order_id
+JOIN 
+    customers c ON o.customer_id = c.customer_id
+WHERE 
+    o.order_status = 'delivered'
+    AND o.order_delivered_customer_date IS NOT NULL
+GROUP BY 
+    c.customer_state
+ORDER BY 
+    Revenue DESC
+LIMIT 10;
