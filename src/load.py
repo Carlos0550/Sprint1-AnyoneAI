@@ -1,15 +1,17 @@
 import os
 import sys
+root_directory = os.path.dirname(os.path.abspath(__file__))  
+root_directory = os.path.dirname(root_directory)  
+sys.path.insert(0, root_directory)
+
 from typing import Dict
 
 from pandas import DataFrame
 from sqlalchemy.engine.base import Engine
 from sqlalchemy import create_engine
-from extract import data 
+from src.extract import data 
 
-root_directory = os.path.dirname(os.path.abspath(__file__))  
-root_directory = os.path.dirname(root_directory)  
-sys.path.insert(0, root_directory)
+
 
 def load(data_frames: Dict[str, DataFrame], database: Engine):
     print("Cargando datos en la base de datos...")
@@ -26,7 +28,7 @@ def load(data_frames: Dict[str, DataFrame], database: Engine):
         print(f"Error al cargar datos: {e}")
         raise
 
-database_path = os.path.join(root_directory, "latam-ecommerce.db")
+database_path = os.path.join(root_directory, "datawarehouse.db")
 database_uri = f"sqlite:///{database_path}"
 engine = create_engine(database_uri)
 
