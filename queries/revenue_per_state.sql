@@ -8,11 +8,11 @@ SELECT
     c.customer_state AS customer_state,
     ROUND(SUM(p.payment_value), 2) AS Revenue
 FROM 
-    orders o
+    olist_orders o
 JOIN 
-    order_payments p ON o.order_id = p.order_id
+    olist_order_payments p ON o.order_id = p.order_id
 JOIN 
-    customers c ON o.customer_id = c.customer_id
+    olist_customers c ON o.customer_id = c.customer_id
 WHERE 
     o.order_status = 'delivered'
     AND o.order_delivered_customer_date IS NOT NULL

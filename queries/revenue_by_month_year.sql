@@ -25,9 +25,9 @@ revenue_data AS (
         STRFTIME('%Y', o.order_purchase_timestamp) AS year,
         SUM(p.payment_value) AS revenue
     FROM
-        orders o
+        olist_orders o
     JOIN
-        order_payments p ON o.order_id = p.order_id
+        olist_order_payments p ON o.order_id = p.order_id
     WHERE
         o.order_status = 'delivered'
         AND o.order_purchase_timestamp IS NOT NULL

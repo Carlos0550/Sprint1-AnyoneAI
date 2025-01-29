@@ -6,6 +6,6 @@ SELECT
     order_status,
     count(*) as amount
 FROM
-    orders
+    olist_orders
 GROUP BY
     order_status

@@ -13,7 +13,7 @@ WITH translated_categories AS (
         p.product_category_name,
         t.product_category_name_english AS category
     FROM 
-        products p
+        olist_products p
     JOIN 
         product_category_name_translation t
         ON p.product_category_name = t.product_category_name
@@ -24,14 +24,14 @@ order_details AS (
         oi.product_id,
         (oi.price + oi.freight_value) AS total_value
     FROM 
-        order_items oi
+        olist_order_items oi
 )
 SELECT 
     tc.category AS Category,
     COUNT(DISTINCT o.order_id) AS Num_order,
     ROUND(SUM(od.total_value), 2) AS Revenue
 FROM 
-    orders o
+    olist_orders o
 JOIN 
     order_details od ON o.order_id = od.order_id
 JOIN 

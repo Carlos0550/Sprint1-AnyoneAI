@@ -13,14 +13,14 @@ SELECT
     c.customer_state AS State,
     CAST(
         AVG(
-            julianday(STRFTIME('%Y-%m-%d', o.order_delivered_customer_date)) - 
-            julianday(STRFTIME('%Y-%m-%d', o.order_estimated_delivery_date))
+            julianday(STRFTIME('%Y-%m-%d', o.order_estimated_delivery_date)) -
+            julianday(STRFTIME('%Y-%m-%d', o.order_delivered_customer_date))  
         ) AS INTEGER
     ) AS Delivery_Difference
 FROM 
-    orders o
+    olist_orders o
 JOIN 
-    customers c 
+    olist_customers c 
     ON o.customer_id = c.customer_id
 WHERE 
     o.order_status = 'delivered' 

@@ -24,7 +24,7 @@ WITH delivery_data AS (
         julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp) AS real_time,
         julianday(order_estimated_delivery_date) - julianday(order_purchase_timestamp) AS estimated_time
     FROM
-        orders
+        olist_orders
     WHERE
         order_status = 'delivered'
         AND order_delivered_customer_date IS NOT NULL
