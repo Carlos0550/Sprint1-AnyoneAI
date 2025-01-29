@@ -173,15 +173,20 @@ def plot_top_10_revenue_categories(df: DataFrame):
     fig.show()
 
 
-def plot_freight_value_weight_relationship(df: DataFrame):
+def plot_freight_value_weight_relationship(df):
     """Plot freight value weight relationship
 
     Args:
         df (DataFrame): Dataframe with freight value weight relationship query result
     """
-    # TODO: plot freight value weight relationship using seaborn scatterplot.
-    # Your x-axis should be weight and, y-axis freight value.
-    raise NotImplementedError
+    plt.figure(figsize=(10, 6))  
+    sns.scatterplot(data=df, x='total_product_weight_g', y='total_freigth_value', alpha=0.7)
+
+    plt.title('Freight Value vs Weight', fontsize=16)
+    plt.xlabel('Weight', fontsize=12)
+    plt.ylabel('Freight Value', fontsize=12)
+
+    plt.show()
 
 
 def plot_delivery_date_difference(df: DataFrame):
@@ -195,13 +200,31 @@ def plot_delivery_date_difference(df: DataFrame):
     )
 
 
-def plot_order_amount_per_day_with_holidays(df: DataFrame):
+import matplotlib.pyplot as plt
+
+def plot_order_amount_per_day_with_holidays(df):
     """Plot order amount per day with holidays
 
     Args:
         df (DataFrame): Dataframe with order amount per day with holidays query result
     """
-    # TODO: plot order amount per day with holidays using matplotlib.
-    # Mark holidays with vertical lines.
-    # Hint: use plt.axvline.
-    raise NotImplementedError
+    
+    plt.figure(figsize=(10, 6))
+
+    plt.plot(df['date'], df['order_count'], label='Order Amount', color='blue', linewidth=2)
+
+    for holiday in df['holiday']:  
+        plt.axvline(x=holiday, color='red', linestyle='--', label='Holiday')
+
+    plt.title('Order Amount Per Day with Holidays', fontsize=16)
+    plt.xlabel('Date', fontsize=12)
+    plt.ylabel('Order Amount', fontsize=12)
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    plt.legend(by_label.values(), by_label.keys(), loc='upper left')
+
+    plt.xticks(rotation=45)  
+    plt.tight_layout() 
+    plt.show()
+
