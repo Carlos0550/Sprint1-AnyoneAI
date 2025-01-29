@@ -4,7 +4,7 @@
 
 SELECT 
     order_status,
-    count(*) as amount
+    count(*) as Ammount
 FROM
     olist_orders
 GROUP BY
