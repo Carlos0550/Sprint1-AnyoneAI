@@ -33,7 +33,8 @@ class QueryEnum(Enum):
     ORDERS_PER_DAY_AND_HOLIDAYS_2017 = "orders_per_day_and_holidays_2017"
     GET_FREIGHT_VALUE_WEIGHT_RELATIONSHIP = "get_freight_value_weight_relationship"
 
-database_path = os.path.join(root_directory, "latam-ecommerce.db")
+database_path = os.path.join(root_directory, "olis.db")
+
 database_uri = f"sqlite:///{database_path}"
 engine = create_engine(database_uri)
 
@@ -48,6 +49,7 @@ def read_query(query_name: str) -> str:
     """
     with open(f"{QUERIES_ROOT_PATH}/{query_name}.sql", "r") as f:
         sql_file = f.read()
+
         sql = text(sql_file)
     return sql
 
@@ -61,8 +63,6 @@ def query_delivery_date_difference(database: Engine) -> QueryResult:
     Returns:
         Query: The query for delivery date difference.
     """
-    if(not database):
-        database = engine
         
     query_name = QueryEnum.DELIVERY_DATE_DIFFERECE.value
     query = read_query(QueryEnum.DELIVERY_DATE_DIFFERECE.value)
@@ -78,8 +78,7 @@ def query_global_ammount_order_status(database: Engine) -> QueryResult:
     Returns:
         Query: The query for global percentage of order status.
     """
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.GLOBAL_AMMOUNT_ORDER_STATUS.value
     query = read_query(QueryEnum.GLOBAL_AMMOUNT_ORDER_STATUS.value)
     return QueryResult(query=query_name, result=read_sql(query, database))
@@ -94,8 +93,7 @@ def query_revenue_by_month_year(database: Engine) -> QueryResult:
     Returns:
         Query: The query for revenue by month year.
     """
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.REVENUE_BY_MONTH_YEAR.value
     query = read_query(QueryEnum.REVENUE_BY_MONTH_YEAR.value)
     return QueryResult(query=query_name, result=read_sql(query, database))
@@ -110,8 +108,7 @@ def query_revenue_per_state(database: Engine) -> QueryResult:
     Returns:
         Query: The query for revenue per state.
     """
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.REVENUE_PER_STATE.value
     query = read_query(QueryEnum.REVENUE_PER_STATE.value)
     return QueryResult(query=query_name, result=read_sql(query, database))
@@ -126,8 +123,7 @@ def query_top_10_least_revenue_categories(database: Engine) -> QueryResult:
     Returns:
         Query: The query for top 10 least revenue categories.
     """
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.TOP_10_LEAST_REVENUE_CATEGORIES.value
     query = read_query(QueryEnum.TOP_10_LEAST_REVENUE_CATEGORIES.value)
     return QueryResult(query=query_name, result=read_sql(query, database))
@@ -142,10 +138,9 @@ def query_top_10_revenue_categories(database: Engine) -> QueryResult:
     Returns:
         Query: The query for top 10 revenue categories.
     """
-    if(not database):
-        database = engine
     query_name = QueryEnum.TOP_10_REVENUE_CATEGORIES.value
     query = read_query(QueryEnum.TOP_10_REVENUE_CATEGORIES.value)
+
     return QueryResult(query=query_name, result=read_sql(query, database))
 
 
@@ -158,8 +153,7 @@ def query_real_vs_estimated_delivered_time(database: Engine) -> QueryResult:
     Returns:
         Query: The query for real vs estimated delivered time.
     """
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.REAL_VS_ESTIMATED_DELIVERED_TIME.value
     query = read_query(QueryEnum.REAL_VS_ESTIMATED_DELIVERED_TIME.value)
     return QueryResult(query=query_name, result=read_sql(query, database))
@@ -184,18 +178,14 @@ def query_freight_value_weight_relationship(database: Engine) -> QueryResult:
     Returns:
         QueryResult: The query for freight_value vs weight data.
     """
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.GET_FREIGHT_VALUE_WEIGHT_RELATIONSHIP.value
 
-    # Get orders from olist_orders table
-    orders = read_sql("SELECT * FROM orders", database)
+    orders = read_sql("SELECT * FROM olist_orders", database)
 
-    # Get items from olist_order_items table
-    items = read_sql("SELECT * FROM order_items", database)
+    items = read_sql("SELECT * FROM olist_order_items", database)
 
-    # Get products from olist_products table
-    products = read_sql("SELECT * FROM products", database)
+    products = read_sql("SELECT * FROM olist_products", database)
 
     merged_orders_items = pd.merge(orders, items, on="order_id", how="inner")
     data = pd.merge(merged_orders_items, products, on="product_id", how="inner")
@@ -203,8 +193,9 @@ def query_freight_value_weight_relationship(database: Engine) -> QueryResult:
     
     delivered = data[data["order_status"] == "delivered"]
 
+
     aggregations = delivered.groupby("order_id").agg(
-        total_freigth_value=("freight_values", "sum"),
+        total_freigth_value=("freight_value", "sum"),
         total_product_weight_g=("product_weight_g", "sum"),
     ).reset_index()
 
@@ -212,12 +203,11 @@ def query_freight_value_weight_relationship(database: Engine) -> QueryResult:
 
 
 def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
-    if(not database):
-        database = engine
+
     query_name = QueryEnum.ORDERS_PER_DAY_AND_HOLIDAYS_2017.value
 
     holidays = read_sql("SELECT * FROM public_holidays", database)
-    orders = read_sql("SELECT * FROM orders", database)
+    orders = read_sql("SELECT * FROM olist_orders", database)
 
     orders["order_purchase_timestamp"] = pd.to_datetime(orders["order_purchase_timestamp"])
 
@@ -234,7 +224,7 @@ def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
 
     result_df = order_purchase_ammount_per_date.copy()
     result_df["holiday"] = result_df["date"].isin(holidays["date"])
-    print(result_df)
+
     return QueryResult(query=query_name, result=result_df)
 
 def get_all_queries() -> List[Callable[[Engine], QueryResult]]:
@@ -268,8 +258,7 @@ def run_queries(database: Engine) -> Dict[str, DataFrame]:
         Dict[str, DataFrame]: A dictionary with keys as the query file names and
         values the result of the query as a dataframe.
     """
-    if(not database):
-        database = engine
+
     query_results = {}
     for query in get_all_queries():
         query_result = query(database)
@@ -277,3 +266,6 @@ def run_queries(database: Engine) -> Dict[str, DataFrame]:
     return query_results
 
 
+# result = run_queries(engine)
+
+# print(result)
