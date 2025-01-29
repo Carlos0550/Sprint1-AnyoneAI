@@ -5,8 +5,7 @@ DATASET_ROOT_PATH = str(Path(__file__).parent.parent / "dataset")
 QUERIES_ROOT_PATH = str(Path(__file__).parent.parent / "queries")
 QUERY_RESULTS_ROOT_PATH = str(Path(__file__).parent.parent / "tests/query_results")
 PUBLIC_HOLIDAYS_URL = "https://date.nager.at/api/v3/publicholidays"
-SQLITE_BD_ABSOLUTE_PATH = str(Path(__file__).parent.parent / "olist.db")
-
+SQLITE_BD_ABSOLUTE_PATH = str(Path(__file__).parent.parent / "olis.db")
 
 def get_csv_to_table_mapping() -> Dict[str, str]:
     """This function maps the csv files to the table names.
@@ -31,3 +30,6 @@ def get_csv_to_table_mapping() -> Dict[str, str]:
             ),
         ]
     )
+
+# csv_to_table_mapping = get_csv_to_table_mapping()
+# print(csv_to_table_mapping)
