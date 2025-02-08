@@ -195,9 +195,10 @@ def query_freight_value_weight_relationship(database: Engine) -> QueryResult:
 
 
     aggregations = delivered.groupby("order_id").agg(
-        total_freigth_value=("freight_value", "sum"),
-        total_product_weight_g=("product_weight_g", "sum"),
+        freight_value=("freight_value", "sum"), 
+        product_weight_g=("product_weight_g", "sum"),  
     ).reset_index()
+
 
     return QueryResult(query=query_name, result=aggregations)
 
