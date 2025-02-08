@@ -21,18 +21,19 @@ WITH months AS (
 ),
 revenue_data AS (
     SELECT
-        STRFTIME('%m', o.order_purchase_timestamp) AS month_no,
-        STRFTIME('%Y', o.order_purchase_timestamp) AS year,
-        SUM(p.payment_value) AS revenue
+        STRFTIME('%m', o.order_delivered_customer_date) AS month_no,
+        STRFTIME('%Y', o.order_delivered_customer_date) AS year,
+        o.order_id,
+        MIN(p.payment_value) AS revenue
     FROM
         olist_orders o
     JOIN
         olist_order_payments p ON o.order_id = p.order_id
     WHERE
         o.order_status = 'delivered'
-        AND o.order_purchase_timestamp IS NOT NULL
+        AND o.order_delivered_customer_date IS NOT NULL
     GROUP BY
-        month_no, year
+        month_no, year, o.order_id
 )
 
 SELECT

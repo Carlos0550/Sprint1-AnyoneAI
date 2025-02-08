@@ -15,7 +15,7 @@ SELECT
         AVG(
             julianday(STRFTIME('%Y-%m-%d', o.order_estimated_delivery_date)) -
             julianday(STRFTIME('%Y-%m-%d', o.order_delivered_customer_date))  
-        ) AS INTEGER
+        ) AS INT
     ) AS Delivery_Difference
 FROM 
     olist_orders o
@@ -26,4 +26,6 @@ WHERE
     o.order_status = 'delivered' 
     AND o.order_delivered_customer_date IS NOT NULL
 GROUP BY 
-    c.customer_state;
+    c.customer_state
+ORDER BY 
+    Delivery_Difference ASC;

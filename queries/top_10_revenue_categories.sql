@@ -20,9 +20,12 @@ order_details AS (
     SELECT 
         oi.order_id,
         oi.product_id,
-        (oi.price + oi.freight_value) AS total_value
+        op.payment_value,
+        op.payment_value AS total_value
     FROM
         olist_order_items oi
+    JOIN 
+        olist_order_payments op ON oi.order_id = op.order_id
 )
 SELECT
     tc.category AS Category,

@@ -17,19 +17,26 @@ WITH translated_categories AS (
     JOIN 
         product_category_name_translation t
         ON p.product_category_name = t.product_category_name
+    WHERE 
+        p.product_category_name IS NOT NULL AND t.product_category_name_english IS NOT NULL
 ),
 order_details AS (
     SELECT
         oi.order_id,
         oi.product_id,
-        (oi.price + oi.freight_value) AS total_value
+        op.payment_value,
+        op.payment_value AS total_value
     FROM 
         olist_order_items oi
+    JOIN 
+        olist_order_payments op ON oi.order_id = op.order_id
+    ORDER BY
+        oi.order_id
 )
 SELECT 
     tc.category AS Category,
     COUNT(DISTINCT o.order_id) AS Num_order,
-    ROUND(SUM(od.total_value), 2) AS Revenue
+    ROUND(SUM(od.total_value),2) AS Revenue
 FROM 
     olist_orders o
 JOIN 
@@ -39,9 +46,9 @@ JOIN
 WHERE 
     o.order_status = 'delivered'
     AND o.order_delivered_customer_date IS NOT NULL
-    AND tc.category IS NOT NULL
 GROUP BY 
     tc.category
 ORDER BY 
     Revenue ASC
 LIMIT 10;
+

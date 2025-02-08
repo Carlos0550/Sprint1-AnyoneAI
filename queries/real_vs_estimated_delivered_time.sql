@@ -17,43 +17,65 @@
 
 WITH delivery_data AS (
     SELECT
-        DISTINCT order_id,
-        STRFTIME('%m', order_delivered_customer_date) AS month_no,
-        STRFTIME('%Y', order_delivered_customer_date) AS year,
-        STRFTIME('%Y-%m', order_delivered_customer_date) AS year_month,
-        julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp) AS real_time,
-        julianday(order_estimated_delivery_date) - julianday(order_purchase_timestamp) AS estimated_time
+        order_id,
+        COALESCE(CAST(STRFTIME('%m', order_purchase_timestamp) AS INTEGER), 0) AS month_no,
+        COALESCE(CAST(STRFTIME('%Y', order_purchase_timestamp) AS INTEGER), 0) AS year,
+        COALESCE(julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp), 0) AS real_time,
+        COALESCE(julianday(order_estimated_delivery_date) - julianday(order_purchase_timestamp), 0) AS estimated_time,
+        COALESCE(printf('%02d', CAST(STRFTIME('%m', order_purchase_timestamp) AS INTEGER)), '00') AS formatted_month
     FROM
         olist_orders
     WHERE
         order_status = 'delivered'
         AND order_delivered_customer_date IS NOT NULL
 )
+
 SELECT
-    month_no,
-    CASE month_no
-        WHEN '01' THEN 'Jan'
-        WHEN '02' THEN 'Feb'
-        WHEN '03' THEN 'Mar'
-        WHEN '04' THEN 'Apr'
-        WHEN '05' THEN 'May'
-        WHEN '06' THEN 'Jun'
-        WHEN '07' THEN 'Jul'
-        WHEN '08' THEN 'Aug'
-        WHEN '09' THEN 'Sep'
-        WHEN '10' THEN 'Oct'
-        WHEN '11' THEN 'Nov'
-        WHEN '12' THEN 'Dec'
-    END AS month,
-    AVG(CASE WHEN year = '2016' THEN real_time ELSE NULL END) AS Year2016_real_time,
-    AVG(CASE WHEN year = '2017' THEN real_time ELSE NULL END) AS Year2017_real_time,
-    AVG(CASE WHEN year = '2018' THEN real_time ELSE NULL END) AS Year2018_real_time,
-    AVG(CASE WHEN year = '2016' THEN estimated_time ELSE NULL END) AS Year2016_estimated_time,
-    AVG(CASE WHEN year = '2017' THEN estimated_time ELSE NULL END) AS Year2017_estimated_time,
-    AVG(CASE WHEN year = '2018' THEN estimated_time ELSE NULL END) AS Year2018_estimated_time
+    formatted_month as month_no,
+    SUBSTR('JanFebMarAprMayJunJulAugSepOctNovDec', (month_no - 1) * 3 + 1, 3) AS month,
+    AVG(CASE WHEN year = 2016 THEN real_time END) AS Year2016_real_time,
+    AVG(CASE WHEN year = 2017 THEN real_time END) AS Year2017_real_time,
+    AVG(CASE WHEN year = 2018 THEN real_time END) AS Year2018_real_time,
+    AVG(CASE WHEN year = 2016 THEN estimated_time END) AS Year2016_estimated_time,
+    AVG(CASE WHEN year = 2017 THEN estimated_time END) AS Year2017_estimated_time,
+    AVG(CASE WHEN year = 2018 THEN estimated_time END) AS Year2018_estimated_time
 FROM
     delivery_data
 GROUP BY
     month_no
 ORDER BY
-    month_no;
+    month_no
+
+
+
+-- WITH delivery_data AS (
+--     SELECT
+--         DISTINCT order_id,
+--         COALESCE(CAST(STRFTIME('%m', order_purchase_timestamp) AS INTEGER), 0) AS month_no,
+--         COALESCE(CAST(STRFTIME('%Y', order_purchase_timestamp) AS INTEGER), 0) AS year,
+--         COALESCE(julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp), 0) AS real_time,
+--         COALESCE(julianday(order_estimated_delivery_date) - julianday(order_purchase_timestamp), 0) AS estimated_time,
+--         -- Aquí formateamos el mes para que tenga siempre dos dígitos
+--         COALESCE(printf('%02d', CAST(STRFTIME('%m', order_purchase_timestamp) AS INTEGER)), '00') AS formatted_month
+--     FROM
+--         olist_orders
+--     WHERE
+--         order_status = 'delivered'
+--         AND order_delivered_customer_date IS NOT NULL;
+-- )
+
+-- SELECT
+--     month_no,
+--     SUBSTR('JanFebMarAprMayJunJulAugSepOctNovDec', (month_no - 1) * 3 + 1, 3) AS month,
+--     AVG(CASE WHEN year = 2016 THEN real_time END) AS Year2016_real_time,
+--     AVG(CASE WHEN year = 2017 THEN real_time END) AS Year2017_real_time,
+--     AVG(CASE WHEN year = 2018 THEN real_time END) AS Year2018_real_time,
+--     AVG(CASE WHEN year = 2016 THEN estimated_time END) AS Year2016_estimated_time,
+--     AVG(CASE WHEN year = 2017 THEN estimated_time END) AS Year2017_estimated_time,
+--     AVG(CASE WHEN year = 2018 THEN estimated_time END) AS Year2018_estimated_time
+-- FROM
+--     delivery_data
+-- GROUP BY
+--     month_no
+-- ORDER BY
+--     month_no;
